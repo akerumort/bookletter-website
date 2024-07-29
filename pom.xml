@@ -11,6 +11,8 @@
 	<groupId>com.akerumort</groupId>
 	<artifactId>qberhub</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
 	<name>qberhub</name>
 	<description>Social Network Project</description>
 	<url/>
@@ -20,6 +22,9 @@
 	<developers>
 		<developer/>
 	</developers>
+	<modules>
+		<module>user-service</module>
+	</modules>
 	<scm>
 		<connection/>
 		<developerConnection/>
