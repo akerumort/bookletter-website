@@ -13,4 +13,6 @@ public class UserCreateDTO {
 
     @NotNull(message = "Email is required")
     private String email;
+
+    private String bio;
 }
