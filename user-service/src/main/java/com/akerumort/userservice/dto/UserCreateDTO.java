@@ -2,6 +2,7 @@ package com.akerumort.userservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,4 +21,7 @@ public class UserCreateDTO {
 
     @NotNull(message = "Email is required")
     private String email;
+
+    @Size(max = 1024, message = "Bio can't be longer than 1024 characters")
+    private String bio;
 }
