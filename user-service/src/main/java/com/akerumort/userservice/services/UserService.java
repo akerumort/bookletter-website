@@ -28,17 +28,17 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        logger.info("Fetched user by ID: " + id);
-        return userRepository.findById(id).orElse(null);
+        logger.info("Fetching user by id: " + id);
+        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     public User saveUser(User user) {
-        logger.info("Saved user: " + user.getUsername());
+        logger.info("Saving user");
         return userRepository.save(user);
     }
 
     public void deleteUser(Long id) {
+        logger.info("Deleting user by id: " + id);
         userRepository.deleteById(id);
-        logger.info("User with ID " + id + " deleted successfully");
     }
 }

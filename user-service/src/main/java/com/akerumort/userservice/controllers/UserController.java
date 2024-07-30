@@ -34,15 +34,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserDTO getUserById(
-            @PathVariable Long id) {
+    public UserDTO getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
         return userMapper.toDTO(user);
     }
 
     @PostMapping
-    public UserDTO createUser(
-            @Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult) {
+    public UserDTO createUser(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new RuntimeException(bindingResult.getAllErrors().toString());
         }
@@ -52,9 +50,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public UserDTO updateUser(
-            @PathVariable Long id,
-            @Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult) {
+    public UserDTO updateUser(@PathVariable Long id, @Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new RuntimeException(bindingResult.getAllErrors().toString());
         }
@@ -65,8 +61,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(
-            @PathVariable Long id) {
+    public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
     }
 }
