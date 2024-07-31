@@ -41,4 +41,23 @@ public class UserService {
         logger.info("Deleting user by id: " + id);
         userRepository.deleteById(id);
     }
+
+    public User updateUserProfile(Long id, User updatedUser) {
+        User user = getUserById(id);
+        user.setFirstName(updatedUser.getFirstName());
+        user.setLastName(updatedUser.getLastName());
+        user.setEmail(updatedUser.getEmail());
+        user.setBio(updatedUser.getBio());
+        user.setGender(updatedUser.getGender());
+        user.setAge(updatedUser.getAge());
+        user.setCity(updatedUser.getCity());
+        user.setCountry(updatedUser.getCountry());
+        return userRepository.save(user);
+    }
+
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
 }

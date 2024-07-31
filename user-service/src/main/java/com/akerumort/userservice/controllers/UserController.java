@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,5 +64,23 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
+    }
+
+    @GetMapping("/profile")
+    public UserDTO getProfile(Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        return userMapper.toDTO(user);
+    }
+
+    @PutMapping("/profile")
+    public UserDTO updateProfile(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult, Principal principal) {
+        if (bindingResult.hasErrors()) {
+            throw new RuntimeException(bindingResult.getAllErrors().toString());
+        }
+        User currentUser = userService.findByUsername(principal.getName());
+        User updatedUser = userMapper.toEntity(userCreateDTO);
+        updatedUser.setId(currentUser.getId());
+        User savedUser = userService.updateUserProfile(currentUser.getId(), updatedUser);
+        return userMapper.toDTO(savedUser);
     }
 }
