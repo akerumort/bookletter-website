@@ -1,8 +1,6 @@
 package com.akerumort.userservice.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,4 +29,17 @@ public class UserDTO {
 
     @Size(max = 1024, message = "Bio can't be longer than 1024 characters")
     private String bio;
+
+    @Size(max = 10, message = "Gender can't be longer than 10 characters")
+    private String gender;
+
+    @Min(value = 0, message = "Age can't be negative")
+    @Max(value = 150, message = "Age can't be more than 150")
+    private Integer age;
+
+    @Size(max = 255, message = "City can't be longer than 255 characters")
+    private String city;
+
+    @Size(max = 255, message = "Country can't be longer than 255 characters")
+    private String country;
 }

@@ -12,6 +12,10 @@
             <column name="last_name" value="User"/>
             <column name="email" value="testuser@example.com"/>
             <column name="bio" value="Some bio here"/>
+            <column name="gender" value="MALE"/>
+            <column name="age" value="30"/>
+            <column name="city" value="Moscow"/>
+            <column name="country" value="Russia"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

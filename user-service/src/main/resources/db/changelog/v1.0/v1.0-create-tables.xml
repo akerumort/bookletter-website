@@ -23,6 +23,10 @@
                 <constraints nullable="false"/>
             </column>
             <column name="bio" type="TEXT"/>
+            <column name="gender" type="VARCHAR(50)"/>
+            <column name="age" type="INTEGER"/>
+            <column name="city" type="VARCHAR(255)"/>
+            <column name="country" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
 </databaseChangeLog>
