@@ -22,6 +22,9 @@
             <column name="email" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
             <column name="bio" type="TEXT"/>
             <column name="gender" type="VARCHAR(50)"/>
             <column name="age" type="INTEGER"/>

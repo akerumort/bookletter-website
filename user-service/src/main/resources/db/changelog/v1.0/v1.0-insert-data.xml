@@ -11,6 +11,7 @@
             <column name="first_name" value="Test"/>
             <column name="last_name" value="User"/>
             <column name="email" value="testuser@example.com"/>
+            <column name="password" value="change-me-please"/>
             <column name="bio" value="Some bio here"/>
             <column name="gender" value="MALE"/>
             <column name="age" value="30"/>

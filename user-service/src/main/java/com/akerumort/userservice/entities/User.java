@@ -36,6 +36,10 @@ public class User {
     @Size(max = 255, message = "Email can't be longer than 255 characters")
     private String email;
 
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, message = "Password must be at least 8 characters long")
+    private String password;
+
     @Size(max = 1024, message = "Bio can't be longer than 1024 characters")
     private String bio;
 
