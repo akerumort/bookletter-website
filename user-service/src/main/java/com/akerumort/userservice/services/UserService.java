@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +20,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<User> getAllUsers(int page, int size) {
         logger.info("Fetching users with pagination");
@@ -33,7 +37,8 @@ public class UserService {
     }
 
     public User saveUser(User user) {
-        logger.info("Saving user");
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        logger.info("Saving user with encoded password: " + user.getPassword());
         return userRepository.save(user);
     }
 
@@ -44,20 +49,30 @@ public class UserService {
 
     public User updateUserProfile(Long id, User updatedUser) {
         User user = getUserById(id);
-        user.setFirstName(updatedUser.getFirstName());
-        user.setLastName(updatedUser.getLastName());
-        user.setEmail(updatedUser.getEmail());
-        user.setBio(updatedUser.getBio());
-        user.setGender(updatedUser.getGender());
-        user.setAge(updatedUser.getAge());
-        user.setCity(updatedUser.getCity());
-        user.setCountry(updatedUser.getCountry());
-        return userRepository.save(user);
+        if (user != null) {
+            user.setFirstName(updatedUser.getFirstName());
+            user.setLastName(updatedUser.getLastName());
+            user.setEmail(updatedUser.getEmail());
+            user.setBio(updatedUser.getBio());
+            user.setGender(updatedUser.getGender());
+            user.setAge(updatedUser.getAge());
+            user.setCity(updatedUser.getCity());
+            user.setCountry(updatedUser.getCountry());
+            if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+            }
+            return userRepository.save(user);
+        }
+        return null;
     }
 
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepository.findByUsername(username);
     }
 
+    public boolean checkPassword(String rawPassword, String encodedPassword) {
+        boolean matches = passwordEncoder.matches(rawPassword, encodedPassword);
+        logger.info("Password match result: " + matches);
+        return matches;
+    }
 }
