@@ -1,6 +1,8 @@
 package com.akerumort.userservice.services;
 
+import com.akerumort.userservice.dto.UserCreateDTO;
 import com.akerumort.userservice.entities.User;
+import com.akerumort.userservice.exceptions.CustomValidationException;
 import com.akerumort.userservice.repos.UserRepository;
 import com.akerumort.userservice.utils.JwtUtil;
 import org.apache.logging.log4j.LogManager;
@@ -11,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import java.util.HashMap;
 import java.util.List;
@@ -83,12 +86,17 @@ public class UserService {
         return matches;
     }
 
-    public Map<String, String> loginUser(String username, String password) {
-        User user = findByUsername(username);
+    public Map<String, String> loginUser(UserCreateDTO userCreateDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            String errorMessage = bindingResult.getAllErrors().toString();
+            logger.error("Validation errors: {}", errorMessage);
+            throw new CustomValidationException(errorMessage);
+        }
+
+        User user = findByUsername(userCreateDTO.getUsername());
         if (user != null) {
             logger.info("User found: " + user.getUsername());
-            boolean passwordMatch = checkPassword(password, user.getPassword());
-            if (passwordMatch) {
+            if (checkPassword(userCreateDTO.getPassword(), user.getPassword())) {
                 String token = jwtUtil.generateToken(user.getUsername());
                 Map<String, String> response = new HashMap<>();
                 response.put("token", token);
@@ -99,6 +107,6 @@ public class UserService {
         } else {
             logger.info("User not found");
         }
-        return null;
+        throw new CustomValidationException("Invalid username or password");
     }
 }

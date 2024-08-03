@@ -3,6 +3,7 @@ package com.akerumort.userservice.controllers;
 import com.akerumort.userservice.dto.UserCreateDTO;
 import com.akerumort.userservice.dto.UserDTO;
 import com.akerumort.userservice.entities.User;
+import com.akerumort.userservice.exceptions.CustomValidationException;
 import com.akerumort.userservice.mappers.UserMapper;
 import com.akerumort.userservice.services.UserService;
 import com.akerumort.userservice.utils.JwtUtil;
@@ -49,7 +50,7 @@ public class UserController {
     @PostMapping
     public UserDTO createUser(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new RuntimeException(bindingResult.getAllErrors().toString());
+            throw new CustomValidationException(bindingResult.getAllErrors().toString());
         }
         User user = userMapper.toEntity(userCreateDTO);
         User savedUser = userService.saveUser(user);
@@ -59,7 +60,7 @@ public class UserController {
     @PutMapping("/{id}")
     public UserDTO updateUser(@PathVariable Long id, @Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new RuntimeException(bindingResult.getAllErrors().toString());
+            throw new CustomValidationException(bindingResult.getAllErrors().toString());
         }
         User user = userMapper.toEntity(userCreateDTO);
         user.setId(id);
@@ -83,16 +84,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> loginUser(@Valid @RequestBody UserCreateDTO userCreateDTO,
-                                                         BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new RuntimeException(bindingResult.getAllErrors().toString());
-        }
-        Map<String, String> response = userService.loginUser(userCreateDTO.getUsername(), userCreateDTO.getPassword());
-        if (response != null) {
-            return ResponseEntity.ok(response);
-        }
-        return ResponseEntity.status(401).body(null);
+    public ResponseEntity<Map<String, String>> loginUser(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult) {
+        Map<String, String> response = userService.loginUser(userCreateDTO, bindingResult);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/profile")
@@ -106,12 +100,12 @@ public class UserController {
     @PutMapping("/profile")
     public UserDTO updateProfile(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult, Principal principal) {
         if (bindingResult.hasErrors()) {
-            throw new RuntimeException(bindingResult.getAllErrors().toString());
+            throw new CustomValidationException(bindingResult.getAllErrors().toString());
         }
         User currentUser = userService.findByUsername(principal.getName());
         User updatedUser = userMapper.toEntity(userCreateDTO);
         updatedUser.setId(currentUser.getId());
-        User savedUser = userService.updateUserProfile(currentUser.getId(), updatedUser);
+        User savedUser = userService.saveUser(updatedUser);
         return userMapper.toDTO(savedUser);
     }
 }
