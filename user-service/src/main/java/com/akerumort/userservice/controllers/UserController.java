@@ -7,15 +7,12 @@ import com.akerumort.userservice.mappers.UserMapper;
 import com.akerumort.userservice.services.UserService;
 import com.akerumort.userservice.utils.JwtUtil;
 import jakarta.validation.Valid;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,8 +20,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-
-    private static final Logger logger = LogManager.getLogger(UserService.class);
 
     @Autowired
     private UserService userService;
@@ -88,24 +83,14 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> loginUser(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult) {
+    public ResponseEntity<Map<String, String>> loginUser(@Valid @RequestBody UserCreateDTO userCreateDTO,
+                                                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new RuntimeException(bindingResult.getAllErrors().toString());
         }
-        User user = userService.findByUsername(userCreateDTO.getUsername());
-        if (user != null) {
-            logger.info("User found: " + user.getUsername());
-            boolean passwordMatch = userService.checkPassword(userCreateDTO.getPassword(), user.getPassword());
-            if (passwordMatch) {
-                String token = jwtUtil.generateToken(user.getUsername());
-                Map<String, String> response = new HashMap<>();
-                response.put("token", token);
-                return ResponseEntity.ok(response);
-            } else {
-                logger.info("Password does not match");
-            }
-        } else {
-            logger.info("User not found");
+        Map<String, String> response = userService.loginUser(userCreateDTO.getUsername(), userCreateDTO.getPassword());
+        if (response != null) {
+            return ResponseEntity.ok(response);
         }
         return ResponseEntity.status(401).body(null);
     }

@@ -2,6 +2,7 @@ package com.akerumort.userservice.services;
 
 import com.akerumort.userservice.entities.User;
 import com.akerumort.userservice.repos.UserRepository;
+import com.akerumort.userservice.utils.JwtUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -23,6 +26,9 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     public List<User> getAllUsers(int page, int size) {
         logger.info("Fetching users with pagination");
@@ -67,6 +73,7 @@ public class UserService {
     }
 
     public User findByUsername(String username) {
+        logger.info("Finding user by username: " + username);
         return userRepository.findByUsername(username);
     }
 
@@ -74,5 +81,24 @@ public class UserService {
         boolean matches = passwordEncoder.matches(rawPassword, encodedPassword);
         logger.info("Password match result: " + matches);
         return matches;
+    }
+
+    public Map<String, String> loginUser(String username, String password) {
+        User user = findByUsername(username);
+        if (user != null) {
+            logger.info("User found: " + user.getUsername());
+            boolean passwordMatch = checkPassword(password, user.getPassword());
+            if (passwordMatch) {
+                String token = jwtUtil.generateToken(user.getUsername());
+                Map<String, String> response = new HashMap<>();
+                response.put("token", token);
+                return response;
+            } else {
+                logger.info("Password does not match");
+            }
+        } else {
+            logger.info("User not found");
+        }
+        return null;
     }
 }
