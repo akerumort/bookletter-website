@@ -1,10 +1,15 @@
 package com.akerumort.userservice.utils;
 
+import com.akerumort.userservice.exceptions.JwtValidationException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.stereotype.Component;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -14,6 +19,7 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
+    private static final Logger logger = LogManager.getLogger(JwtUtil.class);
     private static final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private static final int TOKEN_VALIDITY = 3600 * 1000; // 1 hour
 
@@ -31,12 +37,27 @@ public class JwtUtil {
     }
 
     public Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(SECRET_KEY)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (SignatureException e) {
+            // logger.error("JWT signature does not match: {}", e.getMessage(), e);
+            logger.error("JWT signature does not match: {}", e.getMessage());
+            throw new JwtValidationException("JWT signature does not match locally computed signature.");
+        } catch (ExpiredJwtException e) {
+            // logger.error("JWT token has expired: {}", e.getMessage(), e);
+            logger.error("JWT token has expired: {}", e.getMessage());
+            throw new JwtValidationException("JWT token has expired.");
+        } catch (Exception e) {
+            // logger.error("JWT extraction failed: {}", e.getMessage(), e);
+            logger.error("JWT extraction failed: {}", e.getMessage());
+            throw new JwtValidationException("JWT validity cannot be asserted and should not be trusted.");
+        }
     }
+
 
     public String extractUsername(String token) {
         return extractAllClaims(token).getSubject();
