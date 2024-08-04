@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -42,25 +41,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
-                if (jwtUtil.validateToken(token, jwtUtil.extractUsername(token))) {
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(jwtUtil.extractUsername(token));
-                    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
-                            userDetails.getAuthorities());
+                String username = jwtUtil.extractUsername(token);
+                if (jwtUtil.validateToken(token, username)) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
-            } catch (UsernameNotFoundException ex) {
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                response.getWriter().write("User not found: " + ex.getMessage());
+            } catch (UsernameNotFoundException | JwtValidationException ex) {
+                handleException(response, ex.getMessage());
+                return;
             } catch (AuthenticationException ex) {
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                response.getWriter().write("Authentication error: " + ex.getMessage());
-            } catch (JwtValidationException e) {
-                logger.error(e.getMessage());
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Invalid JWT token");
+                handleException(response, "Authentication error: " + ex.getMessage());
                 return;
             }
         }
         chain.doFilter(request, response);
+    }
+
+    private void handleException(HttpServletResponse response, String message) throws IOException {
+        if (!response.isCommitted()) {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"" + message + "\"}");
+        }
     }
 }
