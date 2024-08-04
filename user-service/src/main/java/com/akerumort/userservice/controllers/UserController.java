@@ -9,6 +9,7 @@ import com.akerumort.userservice.services.UserService;
 import com.akerumort.userservice.utils.JwtUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -58,15 +59,22 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public UserDTO updateUser(@PathVariable Long id, @Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult) {
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new CustomValidationException(bindingResult.getAllErrors().toString());
         }
         User user = userMapper.toEntity(userCreateDTO);
         user.setId(id);
         User updatedUser = userService.saveUser(user);
-        return userMapper.toDTO(updatedUser);
+
+        String newToken = jwtUtil.generateToken(updatedUser.getUsername());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + newToken);
+
+        return ResponseEntity.ok().headers(headers).body(userMapper.toDTO(updatedUser));
     }
+
 
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
@@ -98,7 +106,8 @@ public class UserController {
     }
 
     @PutMapping("/profile")
-    public UserDTO updateProfile(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult, Principal principal) {
+    public ResponseEntity<UserDTO> updateProfile(@Valid @RequestBody UserCreateDTO userCreateDTO,
+                                                 BindingResult bindingResult, Principal principal) {
         if (bindingResult.hasErrors()) {
             throw new CustomValidationException(bindingResult.getAllErrors().toString());
         }
@@ -106,6 +115,12 @@ public class UserController {
         User updatedUser = userMapper.toEntity(userCreateDTO);
         updatedUser.setId(currentUser.getId());
         User savedUser = userService.saveUser(updatedUser);
-        return userMapper.toDTO(savedUser);
+
+        String newToken = jwtUtil.generateToken(savedUser.getUsername());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + newToken);
+
+        return ResponseEntity.ok().headers(headers).body(userMapper.toDTO(savedUser));
     }
 }

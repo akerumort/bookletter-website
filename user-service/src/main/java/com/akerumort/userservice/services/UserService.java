@@ -46,6 +46,23 @@ public class UserService {
     }
 
     public User saveUser(User user) {
+        if (user.getId() == null) {
+            if (userRepository.findByUsername(user.getUsername()) != null) {
+                throw new CustomValidationException("Username already exists.");
+            }
+            if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+                throw new CustomValidationException("Email already exists.");
+            }
+        } else {
+            User existingUser = userRepository.findById(user.getId()).orElseThrow(() -> new RuntimeException("User not found"));
+            if (!existingUser.getUsername().equals(user.getUsername()) && userRepository.findByUsername(user.getUsername()) != null) {
+                throw new CustomValidationException("Username already exists.");
+            }
+            if (!existingUser.getEmail().equals(user.getEmail()) && userRepository.findByEmail(user.getEmail()).isPresent()) {
+                throw new CustomValidationException("Email already exists.");
+            }
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         logger.info("Saving user with encoded password: " + user.getPassword());
         return userRepository.save(user);
