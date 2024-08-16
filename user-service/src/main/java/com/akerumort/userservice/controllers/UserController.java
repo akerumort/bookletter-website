@@ -123,4 +123,10 @@ public class UserController {
 
         return ResponseEntity.ok().headers(headers).body(userMapper.toDTO(savedUser));
     }
+
+    @DeleteMapping("/profile")
+    public ResponseEntity<Void> deleteProfile(Principal principal) {
+        userService.deleteUserByUsername(principal.getName());
+        return ResponseEntity.noContent().build();
+    }
 }

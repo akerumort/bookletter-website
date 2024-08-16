@@ -126,4 +126,14 @@ public class UserService {
         }
         throw new CustomValidationException("Invalid username or password");
     }
+
+    public void deleteUserByUsername(String username) {
+        User user = findByUsername(username);
+        if (user != null) {
+            logger.info("Deleting user by username: " + username);
+            userRepository.delete(user);
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
 }
