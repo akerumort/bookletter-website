@@ -3,6 +3,7 @@ package com.akerumort.userservice.controllers;
 import com.akerumort.userservice.dto.UserCreateDTO;
 import com.akerumort.userservice.dto.UserDTO;
 import com.akerumort.userservice.entities.User;
+import com.akerumort.userservice.entities.enums.Role;
 import com.akerumort.userservice.exceptions.CustomValidationException;
 import com.akerumort.userservice.mappers.UserMapper;
 import com.akerumort.userservice.services.UserService;
@@ -33,19 +34,32 @@ public class UserController {
     private JwtUtil jwtUtil;
 
     @GetMapping
-    public List<UserDTO> getAllUsers(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        List<User> users = userService.getAllUsers(page, size);
-        return users.stream()
-                .map(userMapper::toDTO)
-                .collect(Collectors.toList());
+    public List<UserDTO> getAllUsers(Principal principal,
+                                     @RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "10") int size) {
+        User currentUser = userService.findByUsername(principal.getName());
+
+        if (currentUser.getRole() == Role.ROLE_ADMIN) {
+            List<User> users = userService.getAllUsers(page, size);
+            return users.stream()
+                    .map(userMapper::toDTO)
+                    .collect(Collectors.toList());
+        } else {
+            throw new CustomValidationException("Access denied");
+        }
     }
 
     @GetMapping("/{id}")
-    public UserDTO getUserById(@PathVariable Long id) {
+    public UserDTO getUserById(@PathVariable Long id, Principal principal) {
+        User currentUser = userService.findByUsername(principal.getName());
         User user = userService.getUserById(id);
-        return userMapper.toDTO(user);
+
+        // for ROLE_ADMIN and auth user
+        if (currentUser.getRole() == Role.ROLE_ADMIN || currentUser.getId().equals(id)) {
+            return userMapper.toDTO(user);
+        } else {
+            throw new CustomValidationException("Access denied");
+        }
     }
 
     @PostMapping
@@ -59,26 +73,43 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult) {
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id,
+                                              @Valid @RequestBody UserCreateDTO userCreateDTO,
+                                              BindingResult bindingResult,
+                                              Principal principal) {
         if (bindingResult.hasErrors()) {
             throw new CustomValidationException(bindingResult.getAllErrors().toString());
         }
-        User user = userMapper.toEntity(userCreateDTO);
-        user.setId(id);
-        User updatedUser = userService.saveUser(user);
 
-        String newToken = jwtUtil.generateToken(updatedUser.getUsername());
+        User currentUser = userService.findByUsername(principal.getName());
+        User userToUpdate = userService.getUserById(id);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + newToken);
+        if (currentUser.getRole() == Role.ROLE_ADMIN || currentUser.getId().equals(id)) {
+            userToUpdate = userMapper.toEntity(userCreateDTO);
+            userToUpdate.setId(id);
+            User updatedUser = userService.saveUser(userToUpdate);
 
-        return ResponseEntity.ok().headers(headers).body(userMapper.toDTO(updatedUser));
+            String newToken = jwtUtil.generateToken(updatedUser.getUsername());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Authorization", "Bearer " + newToken);
+
+            return ResponseEntity.ok().headers(headers).body(userMapper.toDTO(updatedUser));
+        } else {
+            throw new CustomValidationException("Access denied");
+        }
     }
 
-
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+    public void deleteUser(@PathVariable Long id, Principal principal) {
+        User currentUser = userService.findByUsername(principal.getName());
+        User userToDelete = userService.getUserById(id);
+
+        if (currentUser.getRole() == Role.ROLE_ADMIN || currentUser.getId().equals(id)) {
+            userService.deleteUser(id);
+        } else {
+            throw new CustomValidationException("Access denied");
+        }
     }
 
     @PostMapping("/register")

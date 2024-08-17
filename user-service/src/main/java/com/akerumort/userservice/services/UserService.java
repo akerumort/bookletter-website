@@ -2,6 +2,7 @@ package com.akerumort.userservice.services;
 
 import com.akerumort.userservice.dto.UserCreateDTO;
 import com.akerumort.userservice.entities.User;
+import com.akerumort.userservice.entities.enums.Role;
 import com.akerumort.userservice.exceptions.CustomValidationException;
 import com.akerumort.userservice.repos.UserRepository;
 import com.akerumort.userservice.utils.JwtUtil;
@@ -52,6 +53,9 @@ public class UserService {
             }
             if (userRepository.findByEmail(user.getEmail()).isPresent()) {
                 throw new CustomValidationException("Email already exists.");
+            }
+            if (user.getRole() == null) {
+                user.setRole(Role.ROLE_USER);
             }
         } else {
             User existingUser = userRepository.findById(user.getId()).orElseThrow(() -> new RuntimeException("User not found"));
