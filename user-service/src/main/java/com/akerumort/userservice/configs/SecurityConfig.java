@@ -1,5 +1,6 @@
 package com.akerumort.userservice.configs;
 
+import com.akerumort.userservice.entities.enums.Role;
 import com.akerumort.userservice.filters.JwtAuthenticationFilter;
 import com.akerumort.userservice.services.CustomUserDetailsService;
 import com.akerumort.userservice.utils.JwtUtil;
@@ -31,9 +32,12 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .requestMatchers("/users/register").permitAll()
                 .requestMatchers("/users/login").permitAll()
+                .requestMatchers("/users/profile").authenticated()
+                .requestMatchers("/users/**").hasAuthority(Role.ROLE_ADMIN.getAuthority())
                 .anyRequest().authenticated()
                 .and()
-                .addFilterBefore(new JwtAuthenticationFilter(jwtUtil, userDetailsService()), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtUtil, userDetailsService()),
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
