@@ -1,5 +1,6 @@
 package com.akerumort.userservice.dto;
 
+import com.akerumort.userservice.entities.enums.Role;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,4 +40,6 @@ public class UserCreateDTO {
 
     @Size(max = 255, message = "Country can't be longer than 255 characters")
     private String country;
+
+    private Role role;
 }

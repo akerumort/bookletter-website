@@ -1,5 +1,6 @@
 package com.akerumort.userservice.entities;
 
+import com.akerumort.userservice.entities.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -55,4 +56,8 @@ public class User {
 
     @Size(max = 255, message = "Country can't be longer than 255 characters")
     private String country;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.ROLE_USER;
 }

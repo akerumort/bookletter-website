@@ -1,5 +1,6 @@
 package com.akerumort.userservice.dto;
 
+import com.akerumort.userservice.entities.enums.Role;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,4 +31,6 @@ public class UserDTO {
     @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
+
+    private Role role;
 }

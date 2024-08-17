@@ -17,6 +17,7 @@
             <column name="age" value="30"/>
             <column name="city" value="Moscow"/>
             <column name="country" value="Russia"/>
+            <column name="role" value="ROLE_ADMIN"/>
         </insert>
     </changeSet>
 </databaseChangeLog>
