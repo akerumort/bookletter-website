@@ -15,15 +15,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private static final Logger logger = LogManager.getLogger(JwtAuthenticationFilter.class);
+
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
@@ -41,6 +39,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
+                if (jwtUtil.isTokenBlacklisted(token)) {
+                    handleException(response, "Token has been invalidated.");
+                    return;
+                }
                 String username = jwtUtil.extractUsername(token);
                 if (jwtUtil.validateToken(token, username)) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);

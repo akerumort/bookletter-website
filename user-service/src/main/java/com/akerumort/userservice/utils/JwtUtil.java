@@ -15,6 +15,8 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class JwtUtil {
@@ -22,6 +24,8 @@ public class JwtUtil {
     private static final Logger logger = LogManager.getLogger(JwtUtil.class);
     private static final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private static final int TOKEN_VALIDITY = 3600 * 1000; // 1 hour
+
+    private final Set<String> blacklistedTokens = ConcurrentHashMap.newKeySet();
 
     public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
@@ -68,5 +72,13 @@ public class JwtUtil {
 
     public boolean validateToken(String token, String username) {
         return (extractUsername(token).equals(username) && !isTokenExpired(token));
+    }
+
+    public boolean isTokenBlacklisted(String token) {
+        return blacklistedTokens.contains(token);
+    }
+
+    public void invalidateToken(String token) {
+        blacklistedTokens.add(token);
     }
 }

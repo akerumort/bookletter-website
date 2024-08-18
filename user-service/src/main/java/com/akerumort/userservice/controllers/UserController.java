@@ -8,14 +8,19 @@ import com.akerumort.userservice.exceptions.CustomValidationException;
 import com.akerumort.userservice.mappers.UserMapper;
 import com.akerumort.userservice.services.UserService;
 import com.akerumort.userservice.utils.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,6 +28,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
+    private static final Logger logger = LogManager.getLogger(UserController.class);
 
     @Autowired
     private UserService userService;
@@ -113,7 +120,8 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult) {
+    public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody UserCreateDTO userCreateDTO,
+                                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new RuntimeException(bindingResult.getAllErrors().toString());
         }
@@ -123,7 +131,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> loginUser(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult) {
+    public ResponseEntity<Map<String, String>> loginUser(@Valid @RequestBody UserCreateDTO userCreateDTO,
+                                                         BindingResult bindingResult) {
         Map<String, String> response = userService.loginUser(userCreateDTO, bindingResult);
         return ResponseEntity.ok(response);
     }
@@ -159,5 +168,27 @@ public class UserController {
     public ResponseEntity<Void> deleteProfile(Principal principal) {
         userService.deleteUserByUsername(principal.getName());
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        Map<String, String> response = new HashMap<>();
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            String username = jwtUtil.extractUsername(token);
+
+            logger.info("User with username {} is logging out", username);
+            jwtUtil.invalidateToken(token);
+            logger.info("Token for user {} has been invalidated", username);
+
+            response.put("message", "Successfully logged out");
+            return ResponseEntity.ok(response);
+        } else {
+            logger.warn("Logout attempt without token");
+            response.put("error", "Logout attempt without token");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
     }
 }

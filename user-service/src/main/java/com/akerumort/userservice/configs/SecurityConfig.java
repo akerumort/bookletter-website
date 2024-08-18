@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .requestMatchers("/users/register").permitAll()
                 .requestMatchers("/users/login").permitAll()
+                .requestMatchers("/users/logout").authenticated()
                 .requestMatchers("/users/profile").authenticated()
                 .requestMatchers("/users/**").hasAuthority(Role.ROLE_ADMIN.getAuthority())
                 .anyRequest().authenticated()
