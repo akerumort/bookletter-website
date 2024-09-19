@@ -9,12 +9,12 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.akerumort</groupId>
-	<artifactId>qberhub</artifactId>
+	<artifactId>bookletter</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>qberhub</name>
-	<description>Social Network Project</description>
+	<name>bookletter</name>
+	<description>Bookletter website</description>
 	<url/>
 	<licenses>
 		<license/>
