@@ -24,6 +24,7 @@
 	</developers>
 	<modules>
 		<module>user-service</module>
+		<module>library-service</module>
 	</modules>
 	<scm>
 		<connection/>
