@@ -9,6 +9,9 @@ import com.akerumort.libraryservice.repos.AuthorRepository;
 import com.akerumort.libraryservice.repos.BookRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.apache.logging.log4j.LogManager;
@@ -27,11 +30,13 @@ public class AuthorService {
     private final AuthorMapper authorMapper;
     private final BookRepository bookRepository;
 
+    @Cacheable(value = "authors")
     public List<AuthorDTO> getAllAuthors() {
         logger.info("Fetching all authors");
         return authorRepository.findAll().stream().map(authorMapper::toDTO).collect(Collectors.toList());
     }
 
+    @Cacheable(value = "author", key = "#id")
     public AuthorDTO getAuthorById(Long id) {
         logger.info("Fetching author with ID: {}", id);
         return authorMapper.toDTO(authorRepository
@@ -45,6 +50,8 @@ public class AuthorService {
     }
 
     @Transactional
+    @CachePut(value = "author", key = "#authorDTO.id")
+    @CacheEvict(value = "authors", allEntries = true)
     public AuthorDTO createAuthor(AuthorDTO authorDTO) {
         logger.info("Creating new author...");
 
@@ -67,6 +74,8 @@ public class AuthorService {
     }
 
     @Transactional
+    @CachePut(value = "author", key = "#id")
+    @CacheEvict(value = "authors", allEntries = true)
     public AuthorDTO updateAuthor(Long id, AuthorDTO authorDTO) {
         logger.info("Updating author with ID: {}", id);
 
@@ -119,6 +128,7 @@ public class AuthorService {
     }
 
     @Transactional
+    @CacheEvict(value = "author", allEntries = true)
     public void deleteAuthor(Long id) {
         logger.info("Deleting author with ID: {}", id);
         try {
@@ -132,6 +142,7 @@ public class AuthorService {
     }
 
     @Transactional
+    @CacheEvict(value = "author", allEntries = true)
     public void deleteAllAuthors() {
         logger.info("Deleting all authors");
         authorRepository.deleteAll();
@@ -144,6 +155,8 @@ public class AuthorService {
     }
 
     @Transactional
+    @CachePut(value = "author", key = "#authorId")
+    @CacheEvict(value = "authors", allEntries = true)
     public AuthorDTO addBooksToAuthor(Long authorId, Set<Long> bookIds) {
         logger.info("Adding books to author with ID: {}", authorId);
         Author author = authorRepository.findById(authorId).orElseThrow(()->
