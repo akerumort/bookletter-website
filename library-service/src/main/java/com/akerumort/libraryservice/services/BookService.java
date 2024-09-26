@@ -44,7 +44,7 @@ public class BookService {
     }
 
     @Transactional
-    @CachePut(value = "book", key = "#bookDTO.id")
+    @CachePut(value = "book", key = "#result.id")
     @CacheEvict(value = "books", allEntries = true)
     public BookDTO createBook(BookDTO bookDTO) {
         logger.info("Creating new book...");

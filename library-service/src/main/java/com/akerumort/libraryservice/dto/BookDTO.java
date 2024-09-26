@@ -8,12 +8,13 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.Set;
 
 @Getter
 @Setter
 @Schema(description = "DTO for Book entity")
-public class BookDTO {
+public class BookDTO implements Serializable {
 
     @Schema(description = "Book ID", example = "1")
     private Long id;

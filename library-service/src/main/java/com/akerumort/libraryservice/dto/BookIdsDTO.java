@@ -5,12 +5,13 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.Set;
 
 @Getter
 @Setter
 @Schema(description = "DTO for passing a set of book IDs")
-public class BookIdsDTO {
+public class BookIdsDTO implements Serializable {
 
     @NotEmpty(message = "Book IDs cannot be null")
     @Schema(description = "Set of book IDs", example = "[1, 2, 3]")

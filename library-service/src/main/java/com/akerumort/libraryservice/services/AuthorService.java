@@ -50,7 +50,7 @@ public class AuthorService {
     }
 
     @Transactional
-    @CachePut(value = "author", key = "#authorDTO.id")
+    @CachePut(value = "author", key = "#result.id")
     @CacheEvict(value = "authors", allEntries = true)
     public AuthorDTO createAuthor(AuthorDTO authorDTO) {
         logger.info("Creating new author...");

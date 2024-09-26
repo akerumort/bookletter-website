@@ -6,13 +6,14 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Getter
 @Setter
 @Schema(description = "DTO for Author entity")
-public class AuthorDTO {
+public class AuthorDTO implements Serializable {
 
     @Schema(description = "Author ID", example = "1")
     private Long id;
