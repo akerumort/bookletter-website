@@ -30,7 +30,6 @@ public class AuthorService {
     private final AuthorMapper authorMapper;
     private final BookRepository bookRepository;
 
-    @Cacheable(value = "authors")
     public List<AuthorDTO> getAllAuthors() {
         logger.info("Fetching all authors");
         return authorRepository.findAll().stream().map(authorMapper::toDTO).collect(Collectors.toList());
@@ -51,7 +50,6 @@ public class AuthorService {
 
     @Transactional
     @CachePut(value = "author", key = "#result.id")
-    @CacheEvict(value = "authors", allEntries = true)
     public AuthorDTO createAuthor(AuthorDTO authorDTO) {
         logger.info("Creating new author...");
 
@@ -75,7 +73,6 @@ public class AuthorService {
 
     @Transactional
     @CachePut(value = "author", key = "#id")
-    @CacheEvict(value = "authors", allEntries = true)
     public AuthorDTO updateAuthor(Long id, AuthorDTO authorDTO) {
         logger.info("Updating author with ID: {}", id);
 
@@ -128,7 +125,7 @@ public class AuthorService {
     }
 
     @Transactional
-    @CacheEvict(value = "author", allEntries = true)
+    @CacheEvict(value = "author", key = "#id")
     public void deleteAuthor(Long id) {
         logger.info("Deleting author with ID: {}", id);
         try {
@@ -149,6 +146,7 @@ public class AuthorService {
     }
 
     @Transactional
+    // добавить cacheput
     public void saveAuthor(Author author) {
         logger.info("Saving author: {}", author);
         authorRepository.save(author);
@@ -156,7 +154,6 @@ public class AuthorService {
 
     @Transactional
     @CachePut(value = "author", key = "#authorId")
-    @CacheEvict(value = "authors", allEntries = true)
     public AuthorDTO addBooksToAuthor(Long authorId, Set<Long> bookIds) {
         logger.info("Adding books to author with ID: {}", authorId);
         Author author = authorRepository.findById(authorId).orElseThrow(()->

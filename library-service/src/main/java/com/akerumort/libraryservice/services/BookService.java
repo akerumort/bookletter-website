@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.apache.logging.log4j.LogManager;
@@ -31,7 +32,6 @@ public class BookService {
     private final BookMapper bookMapper;
     private final AuthorService authorService;
 
-    @Cacheable(value = "books")
     public List<BookDTO> getAllBooks() {
         logger.info("Fetching all books");
         return bookRepository.findAll().stream().map(bookMapper::toDTO).collect(Collectors.toList());
@@ -45,7 +45,6 @@ public class BookService {
 
     @Transactional
     @CachePut(value = "book", key = "#result.id")
-    @CacheEvict(value = "books", allEntries = true)
     public BookDTO createBook(BookDTO bookDTO) {
         logger.info("Creating new book...");
 
@@ -78,7 +77,6 @@ public class BookService {
 
     @Transactional
     @CachePut(value = "book", key = "#id")
-    @CacheEvict(value = "books", allEntries = true)
     public BookDTO updateBook(Long id, BookDTO bookDTO) {
         logger.info("Updating book with ID: {}", id);
 
