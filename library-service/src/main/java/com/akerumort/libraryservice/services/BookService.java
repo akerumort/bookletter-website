@@ -133,20 +133,32 @@ public class BookService {
     @CacheEvict(value = "book", key = "#id")
     public void deleteBook(Long id) {
         logger.info("Deleting book with ID: {}", id);
-        try {
-            if (bookRepository.existsById(id)) {
-                bookRepository.deleteById(id);
-            }
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Book with ID {} does not exist.", id);
-            throw new CustomException("Book with ID " + id + " does not exist.");
+        Book book = bookRepository.findById(id).orElseThrow(() -> new CustomException("Book with ID " +
+                id + " does not exist."));
+
+        // удаляем книгу у авторов
+        for (Author author : book.getAuthors()) {
+            author.getBooks().remove(book);
+            authorService.saveAuthor(author);
         }
+
+        bookRepository.deleteById(id);
+        logger.info("Book deleted successfully.");
     }
+
 
     @Transactional
     @CacheEvict(value = "books", allEntries = true)
     public void deleteAllBooks() {
         logger.info("Deleting all books...");
+
+        List<Book> books = bookRepository.findAll();
+        for (Book book : books) {
+            for (Author author : book.getAuthors()) {
+                author.getBooks().remove(book);
+                authorService.saveAuthor(author);
+            }
+        }
         bookRepository.deleteAll();
         logger.info("All books deleted successfully.");
     }

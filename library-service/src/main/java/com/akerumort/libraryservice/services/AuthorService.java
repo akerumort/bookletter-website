@@ -128,25 +128,36 @@ public class AuthorService {
     @CacheEvict(value = "author", key = "#id")
     public void deleteAuthor(Long id) {
         logger.info("Deleting author with ID: {}", id);
-        try {
-            if (authorRepository.existsById(id)) {
-                authorRepository.deleteById(id);
-            }
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Author with ID " + id + " does not exist.");
-            throw new CustomException("Author with ID " + id + " does not exist.");
+        Author author = authorRepository.findById(id).orElseThrow(() -> new CustomException("Author with ID " +
+                id + " does not exist."));
+
+        // удаляем автора из книги
+        for (Book book : author.getBooks()) {
+            book.getAuthors().remove(author);
+            bookRepository.save(book);
         }
+
+        authorRepository.deleteById(id);
+        logger.info("Author deleted successfully.");
     }
 
     @Transactional
     @CacheEvict(value = "author", allEntries = true)
     public void deleteAllAuthors() {
-        logger.info("Deleting all authors");
+        logger.info("Deleting all authors...");
+        List<Author> authors = authorRepository.findAll();
+        for (Author author : authors) {
+            for (Book book : author.getBooks()) {
+                book.getAuthors().remove(author);
+                bookRepository.save(book);
+            }
+        }
         authorRepository.deleteAll();
+        logger.info("All authors deleted successfully.");
     }
 
     @Transactional
-    // добавить cacheput
+    @CacheEvict(value = "author", key = "#author.id")
     public void saveAuthor(Author author) {
         logger.info("Saving author: {}", author);
         authorRepository.save(author);
