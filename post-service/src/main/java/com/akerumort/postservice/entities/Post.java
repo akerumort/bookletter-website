@@ -25,9 +25,6 @@ public class Post {
     private String title;
 
     @Column(nullable = false)
-    private String anons;
-
-    @Column(nullable = false)
     private String content;
 
     @Column(name = "created_at", nullable = false)
