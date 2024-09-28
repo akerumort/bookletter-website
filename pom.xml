@@ -25,6 +25,7 @@
 	<modules>
 		<module>user-service</module>
 		<module>library-service</module>
+		<module>post-service</module>
 	</modules>
 	<scm>
 		<connection/>
