@@ -39,9 +39,6 @@ public class PostService {
     }
 
     public PostResponseDto updatePost(Long id, PostCreateDto postCreateDto) {
-
-        // добавить проверку на существование поста после добавления исключений
-
         Post post = postRepoService.findById(id);
         post.setTitle(postCreateDto.getTitle());
         post.setContent(postCreateDto.getContent());

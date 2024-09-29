@@ -3,6 +3,7 @@ package com.akerumort.postservice.controllers;
 import com.akerumort.postservice.dto.PostCreateDto;
 import com.akerumort.postservice.dto.PostResponseDto;
 import com.akerumort.postservice.services.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,12 +29,13 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostCreateDto postCreateDto) {
+    public ResponseEntity<PostResponseDto> createPost(@Valid @RequestBody PostCreateDto postCreateDto) {
         return new ResponseEntity<>(postService.createPost(postCreateDto), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PostResponseDto> updatePost(@PathVariable Long id, @RequestBody PostCreateDto postCreateDto) {
+    public ResponseEntity<PostResponseDto> updatePost(@PathVariable Long id,
+                                                      @Valid @RequestBody PostCreateDto postCreateDto) {
         PostResponseDto post = postService.updatePost(id, postCreateDto);
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
