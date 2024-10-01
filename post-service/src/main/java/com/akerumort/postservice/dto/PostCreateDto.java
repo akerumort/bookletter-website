@@ -5,9 +5,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
-public class PostCreateDto {
+public class PostCreateDto implements Serializable {
 
     @NotNull(message = "User ID cannot be null")
     private Long userId;

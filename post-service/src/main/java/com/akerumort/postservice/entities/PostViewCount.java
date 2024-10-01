@@ -5,12 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @Table(name = "post_view_count")
-public class PostViewCount {
+public class PostViewCount implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

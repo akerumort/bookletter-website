@@ -8,6 +8,9 @@ import com.akerumort.postservice.repos.PostRepository;
 import com.akerumort.postservice.services.repo.PostRepoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +27,7 @@ public class PostRepoServiceImpl implements PostRepoService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "post", key = "#id")
     public Post findById(Long id) {
         Optional<Post> post = postRepository.findById(id);
         return post.orElseThrow(() -> new PostNotFoundException("Post with id " + id + " not found"));
@@ -42,6 +46,7 @@ public class PostRepoServiceImpl implements PostRepoService {
 
     @Override
     @Transactional
+    @CachePut(value = "post", key = "#post.id")
     public Post savePost(Post post) {
         if (post.getTitle() == null || post.getContent() == null) {
             throw new InvalidPostException("Post title and content must not be null");
@@ -57,6 +62,7 @@ public class PostRepoServiceImpl implements PostRepoService {
 
     @Override
     @Transactional
+    @CachePut(value = "post", key = "#id")
     public Post updatePost(Long id, Post post) {
         if (post.getTitle() == null || post.getContent() == null) {
             throw new InvalidPostException("Post title and content must not be null");
@@ -75,6 +81,7 @@ public class PostRepoServiceImpl implements PostRepoService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "post", key = "#id")
     public void deleteById(Long id) {
         try {
             postRepository.deleteById(id);
