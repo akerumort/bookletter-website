@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostViewCountService {
     private final PostViewCountRepoService postViewCountRepoService;
 
-    @Transactional
     public PostViewCount incrementViewCount(Long postId) {
         PostViewCount postViewCount = postViewCountRepoService.findViewCountById(postId);
         postViewCount.setViewCount(postViewCount.getViewCount() + 1);
