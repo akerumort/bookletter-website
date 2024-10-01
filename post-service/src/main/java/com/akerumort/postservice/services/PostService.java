@@ -3,6 +3,7 @@ package com.akerumort.postservice.services;
 import com.akerumort.postservice.dto.PostCreateDto;
 import com.akerumort.postservice.dto.PostResponseDto;
 import com.akerumort.postservice.entities.Post;
+import com.akerumort.postservice.entities.PostViewCount;
 import com.akerumort.postservice.mappers.PostMapper;
 import com.akerumort.postservice.services.repo.PostRepoService;
 import lombok.RequiredArgsConstructor;
@@ -18,18 +19,26 @@ import java.util.stream.Collectors;
 @Log4j2
 public class PostService {
     private final PostRepoService postRepoService;
+    private final PostViewCountService postViewCountService;
     private final PostMapper postMapper;
 
     public PostResponseDto getPost(Long id) {
         Post post = postRepoService.findById(id);
-        post.setViewCount(post.getViewCount() + 1);
-        postRepoService.savePost(post);
-        return postMapper.toDto(post);
+        PostViewCount postViewCount = postViewCountService.incrementViewCount(id);
+        PostResponseDto postResponseDto = postMapper.toDto(post);
+        postResponseDto.setViewCount(postViewCount.getViewCount());
+        return postResponseDto;
     }
 
     public List<PostResponseDto> getAllPosts() {
         List<Post> posts = postRepoService.findAll();
-        return posts.stream().map(postMapper::toDto).collect(Collectors.toList());
+        return posts.stream()
+                .map(post -> {
+                    PostResponseDto dto = postMapper.toDto(post);
+                    dto.setViewCount(postViewCountService.getViewCount(post.getId()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     public PostResponseDto createPost(PostCreateDto postCreateDto) {

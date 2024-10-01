@@ -10,6 +10,5 @@ import org.mapstruct.Mapping;
 public interface PostMapper {
     Post toEntity(PostCreateDto dto);
 
-    @Mapping(target = "viewCount", source = "entity.viewCount")
     PostResponseDto toDto(Post entity);
 }
