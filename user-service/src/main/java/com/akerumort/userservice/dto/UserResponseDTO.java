@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Schema(description = "DTO for user information")
-public class UserDTO {
+public class UserResponseDTO {
 
     private Long id;
 

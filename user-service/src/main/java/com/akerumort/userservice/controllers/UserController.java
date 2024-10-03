@@ -1,7 +1,7 @@
 package com.akerumort.userservice.controllers;
 
 import com.akerumort.userservice.dto.UserCreateDTO;
-import com.akerumort.userservice.dto.UserDTO;
+import com.akerumort.userservice.dto.UserResponseDTO;
 import com.akerumort.userservice.entities.User;
 import com.akerumort.userservice.entities.enums.Role;
 import com.akerumort.userservice.exceptions.CustomValidationException;
@@ -52,9 +52,9 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping
-    public List<UserDTO> getAllUsers(Principal principal,
-                                     @RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size) {
+    public List<UserResponseDTO> getAllUsers(Principal principal,
+                                             @RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "10") int size) {
         User currentUser = userService.findByUsername(principal.getName());
 
         if (currentUser.getRole() == Role.ROLE_ADMIN) {
@@ -75,7 +75,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/{id}")
-    public UserDTO getUserById(@PathVariable Long id, Principal principal) {
+    public UserResponseDTO getUserById(@PathVariable Long id, Principal principal) {
         User currentUser = userService.findByUsername(principal.getName());
         User user = userService.getUserById(id);
 
@@ -93,7 +93,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PostMapping
-    public UserDTO createUser(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult) {
+    public UserResponseDTO createUser(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new CustomValidationException(bindingResult.getAllErrors().toString());
         }
@@ -110,10 +110,10 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id,
-                                              @Valid @RequestBody UserCreateDTO userCreateDTO,
-                                              BindingResult bindingResult,
-                                              Principal principal) {
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id,
+                                                      @Valid @RequestBody UserCreateDTO userCreateDTO,
+                                                      BindingResult bindingResult,
+                                                      Principal principal) {
         if (bindingResult.hasErrors()) {
             throw new CustomValidationException(bindingResult.getAllErrors().toString());
         }
@@ -162,8 +162,8 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody UserCreateDTO userCreateDTO,
-                                                BindingResult bindingResult) {
+    public ResponseEntity<UserResponseDTO> registerUser(@Valid @RequestBody UserCreateDTO userCreateDTO,
+                                                        BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new RuntimeException(bindingResult.getAllErrors().toString());
         }
@@ -190,7 +190,7 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "User not authenticated")
     })
     @GetMapping("/profile")
-    public ResponseEntity<UserDTO> getUserProfile(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<UserResponseDTO> getUserProfile(@RequestHeader("Authorization") String token) {
         String jwtToken = token.substring(7);
         String username = jwtUtil.extractUsername(jwtToken);
         User user = userService.findByUsername(username);
@@ -203,8 +203,8 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PutMapping("/profile")
-    public ResponseEntity<UserDTO> updateProfile(@Valid @RequestBody UserCreateDTO userCreateDTO,
-                                                 BindingResult bindingResult, Principal principal) {
+    public ResponseEntity<UserResponseDTO> updateProfile(@Valid @RequestBody UserCreateDTO userCreateDTO,
+                                                         BindingResult bindingResult, Principal principal) {
         if (bindingResult.hasErrors()) {
             throw new CustomValidationException(bindingResult.getAllErrors().toString());
         }

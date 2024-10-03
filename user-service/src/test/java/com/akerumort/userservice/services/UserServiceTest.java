@@ -1,7 +1,7 @@
 package com.akerumort.userservice.services;
 
 import com.akerumort.userservice.dto.UserCreateDTO;
-import com.akerumort.userservice.dto.UserDTO;
+import com.akerumort.userservice.dto.UserResponseDTO;
 import com.akerumort.userservice.entities.User;
 import com.akerumort.userservice.entities.enums.Role;
 import com.akerumort.userservice.exceptions.CustomValidationException;
@@ -46,7 +46,7 @@ public class UserServiceTest {
     private UserService userService;
 
     private User user;
-    private UserDTO userDTO;
+    private UserResponseDTO userResponseDTO;
     private UserCreateDTO userCreateDTO;
 
     @BeforeEach
@@ -60,14 +60,14 @@ public class UserServiceTest {
         user.setPassword("password");
         user.setRole(Role.ROLE_USER);
 
-        userDTO = new UserDTO();
-        userDTO.setId(1L);
-        userDTO.setUsername("testuser");
-        userDTO.setFirstName("Test");
-        userDTO.setLastName("User");
-        userDTO.setEmail("test@example.com");
-        userDTO.setPassword("password");
-        userDTO.setRole(Role.ROLE_USER);
+        userResponseDTO = new UserResponseDTO();
+        userResponseDTO.setId(1L);
+        userResponseDTO.setUsername("testuser");
+        userResponseDTO.setFirstName("Test");
+        userResponseDTO.setLastName("User");
+        userResponseDTO.setEmail("test@example.com");
+        userResponseDTO.setPassword("password");
+        userResponseDTO.setRole(Role.ROLE_USER);
 
         userCreateDTO = new UserCreateDTO();
         userCreateDTO.setUsername("testuser");

@@ -1,7 +1,7 @@
 package com.akerumort.userservice.mappers;
 
 import com.akerumort.userservice.dto.UserCreateDTO;
-import com.akerumort.userservice.dto.UserDTO;
+import com.akerumort.userservice.dto.UserResponseDTO;
 import com.akerumort.userservice.entities.User;
 import org.mapstruct.Mapper;
 
@@ -10,5 +10,5 @@ public interface UserMapper {
 
     User toEntity(UserCreateDTO userCreateDTO);
 
-    UserDTO toDTO(User user);
+    UserResponseDTO toDTO(User user);
 }
