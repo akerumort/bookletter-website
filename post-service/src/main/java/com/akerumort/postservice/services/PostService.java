@@ -23,6 +23,7 @@ public class PostService {
     private final PostMapper postMapper;
 
     public PostResponseDto getPost(Long id) {
+        log.info("Fetching post with id {}", id);
         Post post = postRepoService.findById(id);
         PostViewCount postViewCount = postViewCountService.incrementViewCount(id);
         PostResponseDto postResponseDto = postMapper.toDto(post);
@@ -31,6 +32,7 @@ public class PostService {
     }
 
     public List<PostResponseDto> getAllPosts() {
+        log.info("Fetching all posts");
         List<Post> posts = postRepoService.findAll();
         return posts.stream()
                 .map(post -> {
@@ -42,6 +44,7 @@ public class PostService {
     }
 
     public PostResponseDto createPost(PostCreateDto postCreateDto) {
+        log.info("Creating a new post with title {}", postCreateDto.getTitle());
         Post post = postMapper.toEntity(postCreateDto);
         post.setCreatedAt(LocalDateTime.now());
         post.setUpdatedAt(LocalDateTime.now());
@@ -49,11 +52,13 @@ public class PostService {
     }
 
     public PostResponseDto updatePost(Long id, PostCreateDto postCreateDto) {
+        log.info("Updating post with id {}", id);
         Post post = postMapper.toEntity(postCreateDto);
         return postMapper.toDto(postRepoService.updatePost(id, post));
     }
 
     public void deletePost(Long id) {
+        log.info("Deleting post with id {}", id);
         postRepoService.deleteById(id);
     }
 }
